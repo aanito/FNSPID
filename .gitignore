@@ -1,0 +1,5 @@
+# Ignore dataset files
+venv/
+fnspid/
+data/raw/
+data/processed/
