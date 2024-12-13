@@ -24,7 +24,7 @@ if __name__ == "__main__":
         "--file",
         type=str,
         required=True,
-        help="Path to the dataset CSV file (e.g., data/raw/raw_analyst_ratings.csv).",
+        help="Path to the dataset CSV file (data/raw/raw_analyst_ratings.csv).",
     )
     args = parser.parse_args()
 
