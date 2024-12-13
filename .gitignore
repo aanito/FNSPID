@@ -1,5 +1,6 @@
 # Ignore dataset files
 venv/
 fnspid/
+data/raw/raw_analyst_ratings.csv
 data/raw/
 data/processed/
