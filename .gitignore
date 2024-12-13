@@ -1,6 +1,7 @@
-# Ignore dataset files
 venv/
 fnspid/
+
+# Ignore dataset files
 data/raw/raw_analyst_ratings.csv
 data/raw/
 data/processed/
