@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
+import argparse
 
 def plot_stock_data(df, brand_name, output_dir):
     """
@@ -32,50 +33,38 @@ def plot_stock_data(df, brand_name, output_dir):
     except Exception as e:
         print(f"Error in plotting data: {e}")
 
-if __name__ == "__main__":
+def main(args):
     try:
-        # Input and output paths
-        data_path = "../data/raw/brand1_stock.csv"
-        output_dir = "src/output"
+        # Input file (CSV) and output directory
+        data_path = args.data_file
+        output_dir = "/root/FNSPID/data/processed"  # Output directory for saved plots
 
-        # Load data
+        # Verify if the input dataset exists
         if not os.path.exists(data_path):
             raise FileNotFoundError(f"Dataset not found at path: {data_path}")
         
+        # Load stock data
         stock_data = pd.read_csv(data_path, parse_dates=['Date'])
         stock_data = stock_data.sort_values(by="Date")
 
+        # Extract brand name from the file name (for labeling the plot)
+        brand_name = os.path.basename(data_path).split('_')[0]  # Assumes the filename starts with the brand name
+
         # Debug: Check loaded data
-        print("Dataset Loaded:")
+        print(f"Dataset Loaded for {brand_name}:")
         print(stock_data.info())
 
-        # Plot the data
-        plot_stock_data(stock_data, "Brand1", output_dir)
+        # Plot the stock data for the given company
+        plot_stock_data(stock_data, brand_name, output_dir)
 
     except Exception as e:
         print(f"Error in script execution: {e}")
 
+if __name__ == "__main__":
+    # Set up argument parser for command-line inputs
+    parser = argparse.ArgumentParser(description="Plot stock data for a given company")
+    parser.add_argument('data_file', type=str, help="Path to the stock data CSV file")
+    args = parser.parse_args()
 
-# import pandas as pd
-# import matplotlib.pyplot as plt
-
-# def plot_stock_with_indicators(df, stock_symbol, output_dir):
-#     """
-#     Plot stock price and technical indicators for a specific stock.
-#     """
-#     stock_data = df[df['Stock Symbol'] == stock_symbol]
-#     plt.figure(figsize=(12, 6))
-#     plt.plot(stock_data['Date'], stock_data['Close'], label='Close Price', color='blue')
-#     plt.plot(stock_data['Date'], stock_data['SMA_50'], label='SMA 50', color='green')
-#     plt.plot(stock_data['Date'], stock_data['SMA_200'], label='SMA 200', color='red')
-#     plt.title(f"{stock_symbol} Stock Price and Indicators")
-#     plt.xlabel("Date")
-#     plt.ylabel("Price")
-#     plt.legend()
-#     plt.grid()
-#     plt.savefig(f"{output_dir}/{stock_symbol}_stock_plot.png")
-#     plt.show()
-
-# if __name__ == "__main__":
-#     data = pd.read_csv("../data/raw/yfinance_data/ta_indicators.csv", parse_dates=['Date'])
-#     plot_stock_with_indicators(data, "brand1", "output")
+    # Run main function with the parsed arguments
+    main(args)
