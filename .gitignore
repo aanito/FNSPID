@@ -1,7 +1,10 @@
-venv/
+#Ignore environment variables
 fnspid/
+
+#Ignore the TA-Lib environmental path
 ta-lib/
 ta-lib-0.4.0-src.tar.gz
+
 # Ignore dataset files
 data/raw/raw_analyst_ratings.csv
 data/raw/
