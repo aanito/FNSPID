@@ -146,3 +146,176 @@ Technical Indicators:
 SMA: Highlighted key trends and crossovers, providing buy/sell signals.
 RSI: Identified overbought (>70) and oversold (<30) levels.
 MACD: Indicated momentum shifts.
+
+Sentiment Analysis and Correlation with Stock Price Movements
+Objective
+To analyze the relationship between financial news sentiment and stock price movements using prepared datasets. The report involves:
+
+Normalizing dates between the news and stock datasets.
+Assigning sentiment scores to headlines.
+Calculating daily stock returns.
+Correlating average sentiment scores with stock price movements.
+
+1. Data Preparation
+   a. Align Dates
+   Both financial news and stock datasets should be normalized to ensure consistent date formats.
+   Dates in the news dataset are mapped to stock trading days for precise matching.
+   Steps:
+
+Parse dates in both datasets.
+Align and merge datasets on trading days. 2. Sentiment Analysis
+Perform sentiment analysis on news headlines using a library like TextBlob or VADER.
+Assign sentiment scores:
+Positive: Sentiment > 0
+Neutral: Sentiment ≈ 0
+Negative: Sentiment < 0
+Steps:
+
+Use a sentiment analysis tool to compute sentiment polarity for each headline.
+Aggregate sentiment scores (average) for days with multiple news articles. 3. Calculate Stock Movements
+Compute daily returns to quantify stock price movements using the formula:
+Daily Return
+=
+Close
+𝑡
+−
+Close
+𝑡
+−
+1
+Close
+𝑡
+−
+1
+Daily Return=
+Close
+t−1
+​
+
+Close
+t
+​
+−Close
+t−1
+​
+
+​
+
+4. Correlation Analysis
+   Use Pearson correlation to assess the relationship between average daily sentiment scores and stock daily returns.
+   Steps:
+
+Merge the stock daily returns with average sentiment scores.
+Compute Pearson correlation to understand how sentiment relates to stock price movements.
+Python Script
+Here is the complete script to solve the above tasks:
+
+python
+Copy code
+import pandas as pd
+from textblob import TextBlob # Sentiment Analysis
+from scipy.stats import pearsonr # Correlation Analysis
+
+def normalize_dates(news_df, stock_df):
+"""
+Normalize and align dates between news and stock datasets.
+"""
+news_df['Date'] = pd.to_datetime(news_df['Date']).dt.date
+stock_df['Date'] = pd.to_datetime(stock_df['Date']).dt.date
+return news_df, stock_df
+
+def perform_sentiment_analysis(news_df):
+"""
+Perform sentiment analysis on news headlines using TextBlob.
+"""
+news_df['Sentiment'] = news_df['Headline'].apply(lambda x: TextBlob(x).sentiment.polarity)
+return news_df
+
+def calculate_daily_returns(stock_df):
+"""
+Calculate daily returns for stock data.
+"""
+stock_df['Daily_Return'] = stock_df['Close'].pct_change()
+return stock_df
+
+def aggregate_sentiments(news_df):
+"""
+Aggregate sentiment scores by date.
+"""
+daily_sentiment = news_df.groupby('Date')['Sentiment'].mean().reset_index()
+return daily_sentiment
+
+def merge_and_calculate_correlation(stock_df, sentiment_df):
+"""
+Merge stock returns with sentiment scores and calculate correlation.
+"""
+merged_df = pd.merge(stock_df[['Date', 'Daily_Return']], sentiment_df, on='Date', how='inner')
+correlation, p_value = pearsonr(merged_df['Daily_Return'].dropna(), merged_df['Sentiment'].dropna())
+return merged_df, correlation, p_value
+
+def main(news_file, stock_file, output_file): # Load datasets
+news_df = pd.read_csv(news_file)
+stock_df = pd.read_csv(stock_file)
+
+    # Step 1: Normalize dates
+    news_df, stock_df = normalize_dates(news_df, stock_df)
+
+    # Step 2: Perform sentiment analysis
+    news_df = perform_sentiment_analysis(news_df)
+
+    # Step 3: Calculate stock daily returns
+    stock_df = calculate_daily_returns(stock_df)
+
+    # Step 4: Aggregate daily sentiment scores
+    daily_sentiment = aggregate_sentiments(news_df)
+
+    # Step 5: Merge datasets and compute correlation
+    merged_df, correlation, p_value = merge_and_calculate_correlation(stock_df, daily_sentiment)
+
+    # Output results
+    print("Correlation between Sentiment and Daily Stock Returns:", round(correlation, 4))
+    print("P-value:", round(p_value, 4))
+
+    # Save results
+    merged_df.to_csv(output_file, index=False)
+    print(f"Results saved to: {output_file}")
+
+if **name** == "**main**":
+import argparse
+
+    parser = argparse.ArgumentParser(description="Analyze financial news sentiment and stock price correlation")
+    parser.add_argument('--news_file', type=str, help="Path to the financial news dataset CSV")
+    parser.add_argument('--stock_file', type=str, help="Path to the stock price dataset CSV")
+    parser.add_argument('--output_file', type=str, help="Path to save the output merged dataset")
+
+    args = parser.parse_args()
+
+    main(args.news_file, args.stock_file, args.output_file)
+
+Script Execution
+Run the Script from Command Line:
+
+Prepare your news dataset and stock dataset in CSV format.
+Execute the script by passing the file paths:
+bash
+Copy code
+python sentiment_correlation.py --news_file data/news_data.csv --stock_file data/stock_data.csv --output_file output/correlation_results.csv
+Input Dataset Requirements:
+
+News Dataset:
+
+Date Headline
+2024-06-14 "Stock markets rise amid optimism"
+2024-06-14 "Analysts predict strong earnings"
+Stock Dataset:
+
+Date Open High Low Close Volume
+2024-06-13 100.0 105.0 99.0 104.0 1200000
+2024-06-14 104.0 106.0 103.5 105.5 1500000
+Output:
+
+The script will compute:
+Daily returns for stock prices.
+Average sentiment scores for each day.
+Correlation coefficient and p-value.
+The merged dataset is saved in the specified output directory.

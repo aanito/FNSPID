@@ -13,7 +13,7 @@ def analyze_publishing_times(df):
     """
     Analyze the distribution of publishing times.
     """
-    df['date'] = pd.to_datetime(df['date'], errors='coerce')
+    df['date'] = pd.to_datetime(df['Date'], errors='coerce')
     publishing_times = df.groupby(df['date'].dt.hour).size()
     return publishing_times
 
